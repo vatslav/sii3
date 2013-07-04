@@ -5,7 +5,18 @@ from math import sqrt
 from copy import deepcopy
 from PIL import Image,ImageDraw
 
-
+myclolor = ['Black', 'Blue', 'Brown','Chocolate','Dark Blue', 'Dark Cyan', 'Dark Goldenrod', 'Dark Orange','Dark Red','Forest Green', 'Indigo']
+ptr = 0
+gptr = 0
+def getColor():
+    global gptr,ptr
+    ptr+=1
+    if ptr>3:
+        ptr=1
+        gptr += 1
+    if gptr>len(myclolor):
+        gptr=0
+    return myclolor[gptr]
 
 def d(a, b):
     """нахождение растояния между 2 точками
@@ -20,6 +31,13 @@ def d(a, b):
     if not isinstance(b[0],float):
         b=b[0]
     return sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
+def metrix(a,b):
+    if a==b:
+        return 0
+    if d(a,(0.0))>d(b,(0,0)):
+        return 1
+    else: return -1
 
 
 def D(claster1, claster2):
@@ -58,20 +76,25 @@ def D(claster1, claster2):
 
 points = []  # массив  кортежей из точек
 
-pointsNumber = 5
+pointsNumber = 9
 dawnWall = 10
-upWall = 1150
+upWall = 900
 
 clasters = []  # массив кластеров
 distMx = []  # матрица растояний
-
+def clear():
+    global distMx,clasters,points
+    distMx = []
+    clasters = []
+    points = []
 
 def initPoint():
     global points
     '''инициализирует points случайнми точкми'''
     for n in range(pointsNumber):
         points.append((random.randint(dawnWall, upWall), random.randint(dawnWall, upWall)))
-   # points = [(10,10),(200,400), (100,500), (1000,600),(700,700), (240,390), (680, 200)]
+    #print(points)
+    #points = [(336, 779), (860, 196), (538, 591), (361, 243), (413, 319), (650,650)]
 
 
 def initClasters():
@@ -118,11 +141,15 @@ def step():
     for iObj in clasters[dx]:
         clasters[dy].append(iObj)
     clasters.pop(dx)
-    print('№Кластаера А=',dx,'№Кластера Б=',dy,'растоение=',max)
-    print(clasters)
+    print('№Кластаера А=',points[dx],'№Кластера Б=',points[dy],'растоение=')
+    #print(clasters)
     return(dx,dy,max)
 
+def restart(window):
+    window.root.quit()
+    window.canv.select_clear()
 
+    main()
 
 def stepHandler():
 
@@ -151,42 +178,31 @@ class windows:
     stepIter.__init__()
     def drowColumn(self,number):
         lineEnd = self.lineStart - self.columnHeight
-        print(self.storage[number][0], lineEnd,self.storage[number][0],self.storage[number][1])
-        self.canv.create_oval(self.storage[number][0], lineEnd,self.storage[number][0],self.storage[number][1],
-                              width=self.coumnWidth,fill=self.fill)
+        print(self.storage[number][1])
+        self.canv.create_line(self.storage[number][0], lineEnd,self.storage[number][0],self.storage[number][1],
+                              width=self.coumnWidth,fill=getColor())
+        # self.canv.create_oval(self.storage[number][0], self.storage[number][1]+10,self.storage[number][0],self.storage[number][1]+10,
+        #                       width=self.coumnWidth,fill='red')
+
     def drawGirder(self, numberA, numberB):
         lineEnd = self.lineStart - self.columnHeight
-        self.canv.create_oval(self.storage[numberA][0], lineEnd,self.storage[numberB][0],lineEnd,
-                              width=self.coumnWidth,fill=self.fill)
+        self.canv.create_line(self.storage[numberA][0], lineEnd,self.storage[numberB][0],lineEnd,
+                               width=5,fill=getColor())
     def step(self):
         '''шаг прорисовки'''
         try:
             first,second,distance = self.stepIter.__next__()
         except StopIteration:
             return
-        #print(self.storage[first])
-        #print(self.storage[second])
-        #self.canv.create_line(self.storage[second][0],self.storage[second][1],self.lineStart,self.lineStart-self.columnHeight, fill='black')
-        lineEnd = self.lineStart - self.columnHeight
-        #self.canv.create_oval(400,650, 400,100,)
+
         self.drowColumn(first) #рисуем 1 колонну
         self.drowColumn(second) #рисуем 2 колонну
+        print()
         self.drawGirder(first,second) #рисуем перекладину
         self.lineStart -=  self.columnHeight #переносим линию Рисования
         #меняем координаты кластера для рисования
         self.storage[second][0] = (self.storage[first][0] + self.storage[second][0]) / 2
-        self.storage[second][1] -= self.columnHeight
-        # #правельное ветвление на итерациях > 3
-        # try:
-        #     if self.storage[second][2] == True:
-        #         self.storage[second][1] -= self.columnHeight
-        #         self.storage[second][2]==False
-        #     else:
-        #         self.storage[second][1] += self.columnHeight
-        #
-        # except IndexError:
-        #     self.storage[second].append(True)
-
+        self.storage[second][1] = self.storage[second][1] - self.columnHeight
 
         self.storage.pop(first)
 
@@ -213,6 +229,7 @@ class windows:
         stepButton.grid()
         Button(self.rFrame, text='Выполнить все',
                command=lambda :[self.step() for x in range(len(self.storage))]).grid(column=0,row=1)
+        Button(self.rFrame, text='Перезапуск',command=lambda :restart(self))
         self.canv.grid(row=0,column=0)
         self.lFrame.grid(row=0,column=0)
         self.rFrame.grid(row=0,column=1)
@@ -223,7 +240,7 @@ class windows:
 
 def main():
     '''основной цикл программы, работаем пока кластеров > 2'''
-
+    clear()
     initPoint()
     initClasters()
     windows(points)
