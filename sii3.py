@@ -58,7 +58,7 @@ def D(claster1, claster2):
 
 points = []  # массив  кортежей из точек
 
-pointsNumber = 10
+pointsNumber = 5
 dawnWall = 10
 upWall = 1150
 
@@ -67,9 +67,11 @@ distMx = []  # матрица растояний
 
 
 def initPoint():
+    global points
     '''инициализирует points случайнми точкми'''
     for n in range(pointsNumber):
         points.append((random.randint(dawnWall, upWall), random.randint(dawnWall, upWall)))
+   # points = [(10,10),(200,400), (100,500), (1000,600),(700,700), (240,390), (680, 200)]
 
 
 def initClasters():
@@ -142,13 +144,14 @@ class windows:
     #storage = [[]]
     rFrame = Frame(root)
     lFrame = Frame(root)
-    canv = Canvas(lFrame,width=1200,height=700,bg="lightblue",cursor="pencil")
+    canv = Canvas(lFrame,width=1050,height=700,bg="lightblue",cursor="pencil")
 
 
     stepIter = stepHandler()
     stepIter.__init__()
     def drowColumn(self,number):
         lineEnd = self.lineStart - self.columnHeight
+        print(self.storage[number][0], lineEnd,self.storage[number][0],self.storage[number][1])
         self.canv.create_oval(self.storage[number][0], lineEnd,self.storage[number][0],self.storage[number][1],
                               width=self.coumnWidth,fill=self.fill)
     def drawGirder(self, numberA, numberB):
@@ -161,6 +164,9 @@ class windows:
             first,second,distance = self.stepIter.__next__()
         except StopIteration:
             return
+        #print(self.storage[first])
+        #print(self.storage[second])
+        #self.canv.create_line(self.storage[second][0],self.storage[second][1],self.lineStart,self.lineStart-self.columnHeight, fill='black')
         lineEnd = self.lineStart - self.columnHeight
         #self.canv.create_oval(400,650, 400,100,)
         self.drowColumn(first) #рисуем 1 колонну
@@ -170,12 +176,16 @@ class windows:
         #меняем координаты кластера для рисования
         self.storage[second][0] = (self.storage[first][0] + self.storage[second][0]) / 2
         self.storage[second][1] -= self.columnHeight
-        #правельное ветвление на итерациях > 3
-        try:
-            if self.storage[second][2] == True:
-                self.storage[second][1] -= self.columnHeight
-        except IndexError:
-            self.storage[second].append(True)
+        # #правельное ветвление на итерациях > 3
+        # try:
+        #     if self.storage[second][2] == True:
+        #         self.storage[second][1] -= self.columnHeight
+        #         self.storage[second][2]==False
+        #     else:
+        #         self.storage[second][1] += self.columnHeight
+        #
+        # except IndexError:
+        #     self.storage[second].append(True)
 
 
         self.storage.pop(first)
@@ -201,6 +211,8 @@ class windows:
             self.canv.create_text(point[0],point[1]+20, text=str(point), fill="black", font=("Helvectica", "8"))
         stepButton = Button(self.rFrame, text="Шаг",command=lambda :self.step())
         stepButton.grid()
+        Button(self.rFrame, text='Выполнить все',
+               command=lambda :[self.step() for x in range(len(self.storage))]).grid(column=0,row=1)
         self.canv.grid(row=0,column=0)
         self.lFrame.grid(row=0,column=0)
         self.rFrame.grid(row=0,column=1)
