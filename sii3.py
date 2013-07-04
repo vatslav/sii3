@@ -80,10 +80,11 @@ def printMx(mx):
     """красиво печатает матричу"""
     for x in mx:
         print(x)
-def makeD(distMx=distMx):
+def makeD():
+    global distMx,clasters
     '''заполняет матрицу на основе текущего состояния кластеров'''
     lineIndex = 0
-    #distMx=[]
+    distMx=[]
 
     for cls1 in clasters:
         distMx.append([])
@@ -100,7 +101,7 @@ def step():
     max = 0
     dx=0 # № первого кластера
     dy=0 # № второго кластера
-
+    makeD()
     # находим наибольшее растоение между кластерами
     for y in range(len(distMx)):
         for x in range(len(distMx)):
@@ -129,7 +130,7 @@ def main():
     '''основной цикл программы, работаем пока кластеров > 2'''
     initPoint()
     initClasters()
-    makeD()
+    #makeD()
 
 
     while len(clasters)>2:
