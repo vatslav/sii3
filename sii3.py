@@ -3,6 +3,8 @@ import random
 from pprint import pprint
 from math import sqrt
 from copy import deepcopy
+from PIL import Image,ImageDraw
+
 
 
 def d(a, b):
@@ -57,8 +59,8 @@ def D(claster1, claster2):
 points = []  # массив  кортежей из точек
 
 pointsNumber = 10
-dawnWall = 0
-upWall = 15
+dawnWall = 30
+upWall = 650
 
 clasters = []  # массив кластеров
 distMx = []  # матрица растояний
@@ -116,24 +118,73 @@ def step():
     clasters.pop(dx)
     print('№Кластаера А=',dx,'№Кластера Б=',dy,'растоение=',max)
     print(clasters)
+    return(dx,dy,max)
+
+
+
+def stepHandler():
+
+    while len(clasters)>2:
+        yield step()
+class windows:
+
+    lineColor = "blue"
+    bg = "lightblue"
+    root=Tk()
+
+
+    #oval = canv.create_oval(10,108,10,108,width=5,fill="black")
+    width = 5 #толщина точки
+    fill='black' #цвет заливки
+    columnHeight = 25 #длина колонны
+    coumnWidth = 3 #ширина колнны
+    lineStart = 650 #линия с которой начинаем рисовать точки
+    #storage = [[]]
+    rFrame = Frame(root)
+    lFrame = Frame(root)
+    canv = Canvas(lFrame,width=700,height=700,bg="lightblue",cursor="pencil")
+
+
+    stepIter = stepHandler()
+    stepIter.__init__()
+    def step(self):
+        '''шаг прорисовки'''
+        first,second,distance = self.stepIter.__next__()
+        lineEnd = self.lineStart - self.columnHeight
+        #self.canv.create_oval(400,650, 400,100,)
+        print(self.storage)
+        self.canv.create_oval(self.storage[first][0], lineEnd,self.storage[first][0],self.storage[first][1],
+                              width=self.coumnWidth,fill=self.fill)
+
+    def __init__(self, points):
+        self.storage = deepcopy(points)
+        #рисуем начальное расположение точек
+        self.canv.create_oval(400,650, 400,100,width=self.width,fill=self.fill)
+        #переносим точки на линию старта
+        for nuber in range(len(self.storage)):
+            tmp = list(self.storage[nuber])
+            tmp[1] = self.lineStart
+            self.storage[nuber] = tmp
+
+
+        for point in self.storage:
+            self.canv.create_oval(point[0],point[1],point[0],point[1],width=self.width,fill=self.fill)
+        stepButton = Button(self.rFrame, text="Шаг",command=lambda :self.step())
+        stepButton.grid()
+        self.canv.grid(row=0,column=0)
+        self.lFrame.grid(row=0,column=0)
+        self.rFrame.grid(row=0,column=1)
+
+        self.root.mainloop()
 
 
 
 def main():
     '''основной цикл программы, работаем пока кластеров > 2'''
+
     initPoint()
     initClasters()
-    #makeD()
-
-
-    while len(clasters)>2:
-        step()
-
-    #print(clasters)
-    #step()
-    #print()
-    #printMx(distMx)
-    print(clasters)
+    windows(points)
 
 
 
