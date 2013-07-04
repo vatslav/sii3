@@ -13,6 +13,10 @@ def d(a, b):
         raise TypeError
     if a == b:
         return 0
+    if not isinstance(a[0], float):
+        a=a[0]
+    if not isinstance(b[0],float):
+        b=b[0]
     return sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
 
@@ -69,15 +73,17 @@ def initPoint():
 def initClasters():
     '''инициализирует clasters сначала 1 к 1'''
     for x in points:
-        clasters.append(list(x))
+        tmp = []
+        tmp.append(list(x))
+        clasters.append(tmp)
 def printMx(mx):
     """красиво печатает матричу"""
     for x in mx:
         print(x)
-def makeD():
+def makeD(distMx=distMx):
     '''заполняет матрицу на основе текущего состояния кластеров'''
     lineIndex = 0
-
+    #distMx=[]
 
     for cls1 in clasters:
         distMx.append([])
@@ -94,6 +100,7 @@ def step():
     max = 0
     dx=0 # № первого кластера
     dy=0 # № второго кластера
+
     # находим наибольшее растоение между кластерами
     for y in range(len(distMx)):
         for x in range(len(distMx)):
@@ -104,7 +111,15 @@ def step():
     #print(dx,dy,max)
     #теперь нужно добавить все объекты первого ко второму, а первый удалить
     for iObj in clasters[dx]:
-        clasters[dy].append(iObj)
+        try:
+            clasters[dy].append(iObj)
+        except IndexError as err:
+            print(err)
+            print('clasrer=',clasters)
+            print('dxdy=',dx, dy)
+            print('iobj=',iObj)
+            printMx(distMx)
+            exit()
     clasters.pop(dx)
     print(clasters)
 
@@ -115,9 +130,8 @@ def main():
     initPoint()
     initClasters()
     makeD()
-    print(points)
-    print(clasters)
-    print()
+
+
     while len(clasters)>2:
         step()
 
@@ -125,6 +139,7 @@ def main():
     #step()
     #print()
     #printMx(distMx)
+    print(clasters)
 
 
 
