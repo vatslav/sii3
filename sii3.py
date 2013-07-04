@@ -58,7 +58,7 @@ def D(claster1, claster2):
 
 points = []  # массив  кортежей из точек
 
-pointsNumber = 10
+pointsNumber = 5
 dawnWall = 30
 upWall = 650
 
@@ -124,7 +124,7 @@ def step():
 
 def stepHandler():
 
-    while len(clasters)>2:
+    while len(clasters)>1:
         yield step()
 class windows:
 
@@ -134,32 +134,47 @@ class windows:
 
 
     #oval = canv.create_oval(10,108,10,108,width=5,fill="black")
-    width = 5 #толщина точки
+    width = 9 #толщина точки
     fill='black' #цвет заливки
-    columnHeight = 25 #длина колонны
+    columnHeight = 50 #длина колонны
     coumnWidth = 3 #ширина колнны
     lineStart = 650 #линия с которой начинаем рисовать точки
     #storage = [[]]
     rFrame = Frame(root)
     lFrame = Frame(root)
-    canv = Canvas(lFrame,width=700,height=700,bg="lightblue",cursor="pencil")
+    canv = Canvas(lFrame,width=1200,height=700,bg="lightblue",cursor="pencil")
 
 
     stepIter = stepHandler()
     stepIter.__init__()
+    def drowColumn(self,number):
+        lineEnd = self.lineStart - self.columnHeight
+        self.canv.create_oval(self.storage[number][0], lineEnd,self.storage[number][0],self.storage[number][1],
+                              width=self.coumnWidth,fill=self.fill)
+    def drawGirder(self, numberA, numberB):
+        lineEnd = self.lineStart - self.columnHeight
+        self.canv.create_oval(self.storage[numberA][0], lineEnd,self.storage[numberB][0],lineEnd,
+                              width=self.coumnWidth,fill=self.fill)
     def step(self):
         '''шаг прорисовки'''
         first,second,distance = self.stepIter.__next__()
         lineEnd = self.lineStart - self.columnHeight
         #self.canv.create_oval(400,650, 400,100,)
-        print(self.storage)
-        self.canv.create_oval(self.storage[first][0], lineEnd,self.storage[first][0],self.storage[first][1],
-                              width=self.coumnWidth,fill=self.fill)
+        self.drowColumn(first) #рисуем 1 колонну
+        self.drowColumn(second) #рисуем 2 колонну
+        self.drawGirder(first,second) #рисуем перекладину
+        self.lineStart -=  self.columnHeight #переносим линию Рисования
+        #меняем координаты кластера для рисования
+        self.storage[second][0] = (self.storage[first][0] + self.storage[second][0]) / 2
+        self.storage[second][1] -= self.columnHeight
+        self.storage.pop(first)
+
 
     def __init__(self, points):
         self.storage = deepcopy(points)
         #рисуем начальное расположение точек
-        self.canv.create_oval(400,650, 400,100,width=self.width,fill=self.fill)
+        #self.canv.create_oval(400,650, 400,100,width=self.width,fill=self.fill) #вертикаль
+        #self.canv.create_oval(400,100, 300, 100,width=self.width,fill=self.fill) #ujhbpjynfkm
         #переносим точки на линию старта
         for nuber in range(len(self.storage)):
             tmp = list(self.storage[nuber])
