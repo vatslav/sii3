@@ -97,7 +97,7 @@ def makeD():
 
         lineIndex += 1
 def step():
-    """1 лаг алгоритма"""
+    """1 шаг алгоритма"""
     max = 0
     dx=0 # № первого кластера
     dy=0 # № второго кластера
@@ -112,16 +112,9 @@ def step():
     #print(dx,dy,max)
     #теперь нужно добавить все объекты первого ко второму, а первый удалить
     for iObj in clasters[dx]:
-        try:
-            clasters[dy].append(iObj)
-        except IndexError as err:
-            print(err)
-            print('clasrer=',clasters)
-            print('dxdy=',dx, dy)
-            print('iobj=',iObj)
-            printMx(distMx)
-            exit()
+        clasters[dy].append(iObj)
     clasters.pop(dx)
+    print('№Кластаера А=',dx,'№Кластера Б=',dy,'растоение=',max)
     print(clasters)
 
 
