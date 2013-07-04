@@ -58,9 +58,9 @@ def D(claster1, claster2):
 
 points = []  # массив  кортежей из точек
 
-pointsNumber = 5
-dawnWall = 30
-upWall = 650
+pointsNumber = 10
+dawnWall = 10
+upWall = 1150
 
 clasters = []  # массив кластеров
 distMx = []  # матрица растояний
@@ -157,7 +157,10 @@ class windows:
                               width=self.coumnWidth,fill=self.fill)
     def step(self):
         '''шаг прорисовки'''
-        first,second,distance = self.stepIter.__next__()
+        try:
+            first,second,distance = self.stepIter.__next__()
+        except StopIteration:
+            return
         lineEnd = self.lineStart - self.columnHeight
         #self.canv.create_oval(400,650, 400,100,)
         self.drowColumn(first) #рисуем 1 колонну
@@ -167,15 +170,26 @@ class windows:
         #меняем координаты кластера для рисования
         self.storage[second][0] = (self.storage[first][0] + self.storage[second][0]) / 2
         self.storage[second][1] -= self.columnHeight
+        #правельное ветвление на итерациях > 3
+        try:
+            if self.storage[second][2] == True:
+                self.storage[second][1] -= self.columnHeight
+        except IndexError:
+            self.storage[second].append(True)
+
+
         self.storage.pop(first)
 
 
     def __init__(self, points):
         self.storage = deepcopy(points)
         #рисуем начальное расположение точек
-        #self.canv.create_oval(400,650, 400,100,width=self.width,fill=self.fill) #вертикаль
+        #self.canv.create_oval(400,650, 650,400,width=self.width,fill=self.fill) #вертикаль
         #self.canv.create_oval(400,100, 300, 100,width=self.width,fill=self.fill) #ujhbpjynfkm
         #переносим точки на линию старта
+        for point in self.storage:
+            self.canv.create_oval(point[0]+self.width,point[1],point[0],point[1]+self.width,width=0,fill='green')
+            self.canv.create_text(point[0],point[1]+20, text=str(point), fill="red", font=("Helvectica", "8"))
         for nuber in range(len(self.storage)):
             tmp = list(self.storage[nuber])
             tmp[1] = self.lineStart
@@ -184,6 +198,7 @@ class windows:
 
         for point in self.storage:
             self.canv.create_oval(point[0],point[1],point[0],point[1],width=self.width,fill=self.fill)
+            self.canv.create_text(point[0],point[1]+20, text=str(point), fill="black", font=("Helvectica", "8"))
         stepButton = Button(self.rFrame, text="Шаг",command=lambda :self.step())
         stepButton.grid()
         self.canv.grid(row=0,column=0)
